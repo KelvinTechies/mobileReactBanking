@@ -8,141 +8,92 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Verify from "./src/components/screens/Verify";
 import Dashboard from "./src/components/screens/Dashboard";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { FontAwesome, Ionicons,Entypo,MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  FontAwesome,
+  Ionicons,
+  Entypo,
+  MaterialCommunityIcons,
+} from "@expo/vector-icons";
 // import { createMaterialBottomTabNavigator } from "@react-navigation/material-bottom-tabs";
 import Settings from "./src/components/screens/Settings";
 import Division from "./src/components/screens/common/Division";
-import { createDrawerNavigator } from '@react-navigation/drawer';
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import Subdashboard from "./src/components/screens/Subdashboard";
-import { AntDesign } from '@expo/vector-icons';
+import { AntDesign } from "@expo/vector-icons";
+import BottomNav from "./src/components/screens/BottomNav";
+import Edit from "./src/components/screens/Edit";
+import {
+  PaperProvider,
+  MD3LightTheme as DefaultTheme,
+} from "react-native-paper";
+import Password from "./src/components/screens/Password";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 export default function App() {
   const Stack = createNativeStackNavigator();
   const Tab = createBottomTabNavigator();
   const Drawer = createDrawerNavigator();
+
+  const theme = {
+    ...DefaultTheme,
+    colors: {
+      ...DefaultTheme.colors,
+      primary: "tomato",
+      secondary: "yellow",
+    },
+  };
+  const user = AsyncStorage.getItem("userInfo");
+  console.log(user.access_token);
   return (
     <>
-       <NavigationContainer>
-        <Stack.Navigator initialRouteName="Welcomes">
-          <Stack.Screen
-            options={{
-              headerShown: false,
-            }}
-            name="Welcomes"
-            component={Welcomes}
-          />
-          <Stack.Screen
-            options={{
-              headerShown: false,
-            }}
-            name="login"
-            component={Login}
-          />
-          <Stack.Screen
-            options={{
-              headerShown: false,
-            }}
-            name="signup"
-            component={SignUp}
-          />
-          <Stack.Screen
-            options={{
-              headerShown: false,
-            }}
-            name="verify"
-            component={Verify}
-          />
-           <Stack.Screen
-            options={{
-              headerShown: false,
-            }}
-            name="dashboard"
-            component={Dashboard}
-          />
-        </Stack.Navigator>
-       
-      </NavigationContainer>
+      <PaperProvider theme={theme}>
+        <NavigationContainer>
+          <Stack.Navigator initialRouteName="Welcomes">
+            {/* {user.access_token ? ( */}
+            <Stack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="login"
+              component={Login}
+            />
+            {/*    ) : (
+              <>  */}
+            <Stack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="Welcomes"
+              component={Welcomes}
+            />
 
-
-      {/* <NavigationContainer> */}
-      {/*   <Tab.Navigator
-          barStyle={{ backgroundColor: "#FFF5F5" }}
-          screenOptions={{
-            tabBarActiveTintColor: "#262424",
-            tabBarInactiveTintColor: "#ccc",
-            tabBarItemStyle: {  height: 40 },
-          }}
-        >
-          <Tab.Screen
-            name="Dashboard"
-            component={Dashboard}
-            options={{
-              headerTitle: "",
-              headerShown: false,
-              tabBarIconStyle:{fontWeight:700},
-              tabBarBadgeStyle:{width: 40, height: 40  },
-              tabBarIcon: ({ focused, size }) => (
-                <FontAwesome name="home" color={`${focused? "#262424":"#ccc"}`} size={15} />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name="settings"
-            options={{
-              title: "Settings",
-              tabBarIconStyle:{fontWeight:700},
-              tabBarIcon: ({ focused,size }) => (
-                <Entypo name="user" color={`${focused? "#262424":"#ccc"}`} size={15} />
-              ),
-            }}
-            component={Settings}
-          />
-            <Tab.Screen
-            name="Reward"
-            component={SignUp}
-            options={{
-              headerTitle: "",
-              headerShown: false,
-              tabBarIconStyle:{fontWeight:700},
-              tabBarBadgeStyle:{width: 40, height: 40  },
-              tabBarIcon: ({ focused, size }) => (
-                <FontAwesome name="diamond" color={`${focused? "#262424":"#ccc"}`} size={15} />
-              ),
-            }}
-          />
-          <Tab.Screen name="Division" 
-            options={{
-              title: "Invest",
-              tabBarIconStyle:{fontWeight:700},
-
-              tabBarIcon: ({ focused,size }) => (
-          <MaterialCommunityIcons name="finance" size={24} color={`${focused? "#DAD7D7":"#ccc"}`} />
-              ),
-            }}
-          component={Division} />
-          <Tab.Screen name="Rewards"     options={{
-              title: "Invest",
-              tabBarIconStyle:{fontWeight:700},
-
-              tabBarIcon: ({ focused,size }) => (
-          <MaterialCommunityIcons name="finance" size={24} color={`${focused? "#DAD7D7":"#ccc"}`} />
-              ),
-            }} component={Login} />
-        </Tab.Navigator> */}
-        {/* <Drawer.Navigator>
-      <Drawer.Screen options={{
-        drawerIcon:({focus})=>(
-          <AntDesign name="logout" size={24} color="#FF5757" />
-        )
-      }} name="Logout" component={Subdashboard} />
-    </Drawer.Navigator> */}
-      {/* </NavigationContainer> */}
-
-       {/* <Verify /> */}
-      {/*     // <Verify />
-
-
-      <Dashboard /> */}
-      {/* <Dashboard /> */}
+            <Stack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="signup"
+              component={SignUp}
+            />
+            <Stack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="verify"
+              component={Verify}
+            />
+            <Stack.Screen
+              options={{
+                headerShown: false,
+              }}
+              name="dashboard"
+              component={BottomNav}
+            />
+            <Stack.Screen name="Edit Profile" component={Edit} />
+            <Stack.Screen name="Change Password" component={Password} />
+            {/*      </>
+            )} */}
+          </Stack.Navigator>
+        </NavigationContainer>
+      </PaperProvider>
     </>
   );
 }

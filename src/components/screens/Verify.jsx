@@ -15,16 +15,14 @@ import OTPInputView from "@twotalltotems/react-native-otp-input";
 import { useRef } from "react";
 import axios from "axios";
 
-
-
 const input = Array(5).fill("");
 let newInputIndex = 0;
 const isObjvalid = (obj) => {
   return Object.values(obj).every((val) => val.trim());
 };
 export default function Verify({ route, navigation }) {
-  const { user_id } = route.params;
-
+  const { user_id, user } = route.params;
+  console.log({ user: user });
   const [otp, setOtp] = useState({ 0: "", 1: "", 2: "", 3: "", 4: "" });
   const inputRef = useRef();
   const [nextInputIndex, setNextInputIndex] = useState(0);
@@ -34,55 +32,55 @@ export default function Verify({ route, navigation }) {
     setOtp(newOtp);
 
     const lastInputIndex = input.length - 1;
-    if (!text) {
-      newInputIndex = index === 0 ? 0 : index - 1;
-    } else {
-      newInputIndex = index === lastInputIndex ? lastInputIndex : index + 1;
-      setNextInputIndex(newInputIndex);
-    }
+    if (!text) newInputIndex = index === 0 ? 0 : index - 1;
+    else newInputIndex = index === lastInputIndex ? lastInputIndex : index + 1;
+    setNextInputIndex(newInputIndex);
   };
 
+  useEffect(() => {
+    inputRef.current.focus();
+  }, [nextInputIndex]);
 
-
-  const submitOTP =  () => {
+  const submitOTP = async () => {
     Keyboard.dismiss();
     if (isObjvalid(otp)) {
-     let val = "";
+      let val = "";
       Object.values(otp).forEach((v) => {
         val += v;
       });
 
-     axios
-      .post("http://192.168.145.138:5000/auth/user/verifyO_t_p", {
-        user_id,
-        val,
-      })
-      .then((res) => {
-        if (res.data.status === 200) {
-          alert(res.data.message);
-          navigation.navigate("dashboard");
-        } else if (res.data.status === 404) {
-          alert(res.data.error);
-        } else if (res.data.status === 400) {
-          alert(res.data.error);
-        } else if (res.data.status === 401) {
-          alert(res.data.error);
-        } else if (res.status === 400) {
-          alert(res.status);
-        }
-      })
-      .catch((e) => console.log(e));
-    }
+      if (val === "") {
+        console.log("All fields are required");
+      }
 
+      await axios
+        .post("http://192.168.14.138:5000/auth/user/verifyO_t_p", {
+          val,
+          user_id,
+        })
+        .then((res) => {
+          if (res.data.status === 200) {
+            // alert(res.data.message);
+            navigation.navigate("dashboard", user);
+          } else if (res.data.status === 404) {
+            alert(res.data.error);
+          } else if (res.data.status === 400) {
+            alert(res.data.error);
+          } else if (res.data.status === 401) {
+            alert(res.data.error);
+          } else if (res.status === 400) {
+            alert(res.status);
+          }
+        })
+        .catch((e) => console.log(e));
+    }
   };
-  useEffect(() => {
-    inputRef.current.focus();
-  }, [nextInputIndex]);
+
   return (
     <View style={styles.verifyContainer}>
       <Image
         style={styles.bgPattern}
-        source={require("../../../assets/images/Untitled design (2).png")} 
+        source={require("../../../assets/images/Untitled design (2).png")}
       />
       <View style={styles.verify_cont}>
         <Text style={styles.text}>Verify</Text>

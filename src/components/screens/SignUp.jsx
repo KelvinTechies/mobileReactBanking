@@ -35,33 +35,39 @@ const SignUp = ({ navigation }) => {
     } else if (data.password !== data.cpwd) {
       setErrMsg("Password MixMatched");
     } else {
-       axios.post("http://192.168.145.138:5000/auth/user/register",data,{
-        headers: {
-            'Content-Type': 'application/json',}
-        }).then(res=>{
-          if(res.data.status===401){
-            setErrMsg(res.data.error)
-          }else  if(res.data.status===400){
-            setErrMsg(res.data.error)
-          }else  if(res.data.status===201){
-            alert(res.data.message)
-            setUser(res.data.user_id)
-            navigation.navigate('verify',{user_id:user})
-
-          }else  if(res.data.status===204){
-            setErrMsg(res.data.error)
+      axios
+        .post("http://192.168.14.138:5000/auth/user/register", data, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          if (res.data.status === 401) {
+            setErrMsg(res.data.error);
+          } else if (res.data.status === 400) {
+            setErrMsg(res.data.error);
+          } else if (res.data.status === 201) {
+            alert(res.data.message);
+            setUser(res.data.user_id);
+            navigation.navigate("verify", {
+              user_id: res.data.user_id,
+              user: res.data.user,
+            });
+          } else if (res.data.status === 204) {
+            setErrMsg(res.data.error);
           }
-       }).catch(e=>console.log(e))
+        })
+        .catch((e) => console.log(e));
 
-    //   fetch("http://192.168.121.138:5000/auth/user/register", {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify(data),
-    //   })
-    //     .then((res) => res.json())
-    //     .then((data) => console.log(data));
+      //   fetch("http://192.168.121.138:5000/auth/user/register", {
+      //     method: "POST",
+      //     headers: {
+      //       "Content-Type": "application/json",
+      //     },
+      //     body: JSON.stringify(data),
+      //   })
+      //     .then((res) => res.json())
+      //     .then((data) => console.log(data));
     }
   };
 
@@ -76,7 +82,7 @@ const SignUp = ({ navigation }) => {
           <View style={styles.cont_1}>
             <View style={GlobalStyles.login_cont}>
               <Text style={styles.signUpTxt}>Sign Up</Text>
-              <TouchableOpacity onPress={() => navigation.navigate("login") }>
+              <TouchableOpacity onPress={() => navigation.navigate("login")}>
                 <Text style={styles.alreadyReg}>
                   {" "}
                   Already registered? Login Here

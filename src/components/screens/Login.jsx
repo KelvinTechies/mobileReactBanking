@@ -1,4 +1,6 @@
 import {
+  ActivityIndicator,
+  ActivityIndicatorBase,
   Image,
   Pressable,
   ScrollView,
@@ -11,35 +13,44 @@ import {
 import React, { useState } from "react";
 import { button1 } from "./common/button";
 import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const Login = ({navigation}) => {
+const Login = ({ navigation }) => {
+  const [isSubmittted, setIssubmitted] = useState(false);
+  const [userInfo, setUserInfo] = useState({});
   const [data, setData] = useState({
-    Account_num:"",
-    password:"",
-  })
+    Account_num: "",
+    password: "",
+  });
   const [errMsg, setErrMsg] = useState(null);
-  const handleLogin = async() => {
-    if (
-      data.Account_num == "" ||
-      data.password == ""
-    ) {
+  const handleLogin = async () => {
+    if (data.Account_num == "" || data.password == "") {
       setErrMsg("All Fields are required");
       return;
     } else {
-      await axios.post("http://192.168.145.138:5000/auth/user/login",data,{
-        headers: {
-            'Content-Type': 'application/json',}
-        }).then(res=>{
-          if(res.data.status===401){
-            setErrMsg(res.data.error)
-          }  if(res.data.status==200){
-            alert("You are logged in")
-            navigation.navigate('dashboard')
-          }else  if(res.data.status===403){
-            setErrMsg(res.data.error)
+      setIssubmitted(true);
+      await axios
+        .post("http://192.168.157.138:5000/auth/user/login", data, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+        .then((res) => {
+          if (res.data.status === 401) {
+            setErrMsg(res.data.error);
           }
-       }).catch(e=>console.log(e))
+          if (res.data.status == 200) {
+            let userInfo = res.data;
+            setUserInfo(userInfo);
+            AsyncStorage.setItem("userInfo", JSON.stringify(userInfo));
 
+            navigation.navigate("dashboard", { userInfo: res.data });
+            setIssubmitted(false);
+          } else if (res.data.status === 403) {
+            setErrMsg(res.data.error);
+          }
+        })
+        .catch((e) => console.log(e));
     }
   };
   return (
@@ -48,45 +59,60 @@ const Login = ({navigation}) => {
         style={styles.patternBg}
         source={require("../../../assets/images/2.png")}
       />
-     <ScrollView>
-     <View style={styles.container1}>
-        <View style={styles.login_cont}>
-          <Text style={styles.LoginTxt}>Login</Text>
-          <Pressable>
-            <Text style={styles.login_subTxt}>sign in to continue</Text>
-          </Pressable>
-        </View>
-        {errMsg ? <Text style={styles.errMsg}>{errMsg}</Text> : null}
+      <ScrollView>
+        <View style={styles.container1}>
+          <View style={styles.login_cont}>
+            <Text style={styles.LoginTxt}>Login</Text>
+            <Pressable>
+              <Text style={styles.login_subTxt}>sign in to continue</Text>
+            </Pressable>
+          </View>
+          {errMsg ? <Text style={styles.errMsg}>{errMsg}</Text> : null}
 
-        <View>
-          <Text style={styles.labelTxt}>Account Number</Text>
-          <TextInput
-          keyboardType="number-pad"
+          <View>
+            <Text style={styles.labelTxt}>Account Number</Text>
+            <TextInput
+              keyboardType="number-pad"
               onChangeText={(text) => setData({ ...data, Account_num: text })}
               onPressIn={() => setErrMsg(null)}
-          placeholder="codewithsas" style={styles.textInput} />
-          <Text style={styles.labelTxt}>Password</Text>
-          <TextInput
+              placeholder="codewithsas"
+              style={styles.textInput}
+            />
+            <Text style={styles.labelTxt}>Password</Text>
+            <TextInput
               onChangeText={(text) => setData({ ...data, password: text })}
               onPressIn={() => setErrMsg(null)}
-            secureTextEntry={true}
-            placeholder="******"
-            style={styles.textInput}
-          />
-          <TouchableOpacity onPress={handleLogin}>
-            <Text style={styles.loginBtn}>Log in</Text>
-          </TouchableOpacity>
+              secureTextEntry={true}
+              placeholder="******"
+              style={styles.textInput}
+            />
+            {!isSubmittted && (
+              <TouchableOpacity onPress={handleLogin}>
+                <Text style={styles.loginBtn}>Log in</Text>
+              </TouchableOpacity>
+            )}
+            {isSubmittted ? (
+              <TouchableOpacity disabled={true}>
+                <ActivityIndicator
+                  style={styles.loginBtn}
+                  size="large"
+                  color={"#fff"}
+                />
+              </TouchableOpacity>
+            ) : (
+              ""
+            )}
+          </View>
+          <View>
+            <TouchableOpacity>
+              <Text style={styles.forgetPwd}>Forgot Password?</Text>
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate("signup")}>
+              <Text style={styles.forgetPwd}>Sign up?</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View>
-          <TouchableOpacity>
-            <Text style={styles.forgetPwd}>Forgot Password?</Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={()=>navigation.navigate('signup')}>
-            <Text style={styles.forgetPwd}>Sign up?</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-     </ScrollView>
+      </ScrollView>
     </View>
   );
 };
